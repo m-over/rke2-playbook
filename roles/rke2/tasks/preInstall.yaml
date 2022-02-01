@@ -1,0 +1,11 @@
+---
+- name: Create rke2 folder
+  file:
+    path: /etc/rancher/rke2/
+    state: directory
+
+- name: Create /var/lib/rancher/rke2/server/manifests
+  file:
+    path: /var/lib/rancher/rke2/server/manifests
+    state: directory
+  when: clusterconfig.kubevip.enabled is true

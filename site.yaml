@@ -1,0 +1,11 @@
+---
+- name: Install rke2 Cluster
+  hosts: rke-cluster
+  remote_user: root
+  pre_tasks:
+    - name: include_vars
+      include_vars:
+        file: clusterconfig.yaml
+        name: clusterconfig
+  roles:
+    - rke2

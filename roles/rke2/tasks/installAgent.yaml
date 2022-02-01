@@ -1,0 +1,15 @@
+---
+- name: Create RKE2 config
+  template:
+    src: files/rkeConfig.j2
+    dest: /etc/rancher/rke2/config.yaml
+
+- name: Install RKE2 on agent nodes with version
+  shell: curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL={{clusterconfig.kubernetesVersion}} INSTALL_RKE2_TYPE="agent" sh -
+  when: clusterconfig.kubernetesVersion is defined
+  notify: start rke2-agent
+
+- name: Install RKE2 on agent nodes
+  shell: curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE="agent" sh -
+  when: clusterconfig.kubernetesVersion is not defined
+  notify: start rke2-agent

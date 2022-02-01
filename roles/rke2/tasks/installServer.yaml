@@ -1,0 +1,54 @@
+---
+- name: Create RKE2 config on first master
+  template:
+    src: files/rkeConfig.j2
+    dest: /etc/rancher/rke2/config.yaml
+  when: hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] == hostvars[groups['servers'][0]]['ansible_eth0']['ipv4']['address']
+
+
+- name: Install RKE2 on first master
+  shell: curl -sfL https://get.rke2.io | sh -s - --cluster-init
+  when: hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] == hostvars[groups['servers'][0]]['ansible_eth0']['ipv4']['address'] and clusterconfig.kubernetesVersion is not defined
+  register: rkeinstall
+
+- name: Install RKE2 on first master with version
+  shell: curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL={{clusterconfig.kubernetesVersion}} sh -s - --cluster-init
+  when: hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] == hostvars[groups['servers'][0]]['ansible_eth0']['ipv4']['address'] and clusterconfig.kubernetesVersion is defined
+  register: rkeinstallv
+
+- name: start rke2-server
+  systemd:
+    name: rke2-server.service
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  when: rkeinstall.changed or rkeinstallv.changed
+
+
+- name: Wait for node-token
+  wait_for:
+    path: "/var/lib/rancher/rke2/server/node-token"
+  when: hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] == hostvars[groups['servers'][0]]['ansible_eth0']['ipv4']['address'] and clusterconfig.token is not defined
+
+- name: Read node-token from master
+  slurp:
+    path: "/var/lib/rancher/rke2/server/node-token"
+  register: node_token
+  when: hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] == hostvars[groups['servers'][0]]['ansible_eth0']['ipv4']['address'] and clusterconfig.token is not defined
+
+- name: Create RKE2 config on other masters
+  template:
+    src: files/rkeConfig.j2
+    dest: /etc/rancher/rke2/config.yaml
+  when: hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] != hostvars[groups['servers'][0]]['ansible_eth0']['ipv4']['address']
+
+- name: Install RKE2 on other Master nodes 
+  shell: curl -sfL https://get.rke2.io | sh -s - --cluster-init
+  when: hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] != hostvars[groups['servers'][0]]['ansible_eth0']['ipv4']['address'] and clusterconfig.kubernetesVersion is not defined
+  notify: start rke2-server
+
+- name: Install RKE2 on other Master nodes with version
+  shell: curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL={{clusterconfig.kubernetesVersion}} sh -s - --cluster-init
+  when: hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] != hostvars[groups['servers'][0]]['ansible_eth0']['ipv4']['address'] and clusterconfig.kubernetesVersion is defined
+  notify: start rke2-server
+

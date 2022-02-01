@@ -1,0 +1,14 @@
+---
+- name: start rke2-server
+  systemd:
+    name: rke2-server.service
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: start rke2-agent
+  systemd:
+    name: rke2-agent.service
+    state: started
+    enabled: yes
+    daemon_reload: yes

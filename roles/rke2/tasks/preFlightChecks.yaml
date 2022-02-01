@@ -1,0 +1,30 @@
+---
+- name: Check if servers are odd
+  fail:
+    msg: "Please use for servers odd number of nodes!"
+  run_once: true
+  when: groups['servers'] | length % 2 != 1
+
+- name: kubevip enabled and no interface defined
+  fail:
+    msg: "No interface for kubevip defined!"
+  run_once: true
+  when: clusterconfig.kubevip is defined and clusterconfig.kubevip.enabled is true  and clusterconfig.kubevip.interface is not defined
+
+- name: kubevip enabled and no option enabled
+  fail:
+    msg: "kubevip enabled and no options enabled!"
+  run_once: true
+  when: clusterconfig.kubevip is defined and clusterconfig.kubevip.enabled is true and clusterconfig.kubevip.controlplane is false and clusterconfig.kubevip.services is false
+
+- name: kubevip controlplane enabled but no VIP defined
+  fail:
+    msg: "kubevip controlplane enabled and VIP enabled!"
+  run_once: true
+  when: clusterconfig.kubevip is defined and clusterconfig.kubevip.enabled is true and clusterconfig.kubevip.controlplane is true and clusterconfig.kubevip.controlplaneVip is not defined
+
+- name: kubevip cloud Provider is enabled but no services 
+  fail:
+    msg: "kubevip controlplane enabled and VIP enabled!"
+  run_once: true
+  when: clusterconfig.kubevip is defined and clusterconfig.kubevip.enabled is true  and  clusterconfig.kubevip.cloudProvider is true and clusterconfig.kubevip.service is not true

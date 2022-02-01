@@ -1,0 +1,19 @@
+{% if hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] != hostvars[groups['servers'][0]]['ansible_eth0']['ipv4']['address'] %}
+server: https://{{ hostvars[groups['servers'][0]]['ansible_eth0']['ipv4']['address']}}:9345
+{% endif %}
+{% if clusterconfig.token is defined  %}
+token: {{ clusterconfig.token }}
+{% elif hostvars[groups['servers'][0]]['node_token']['content'] is defined %}
+token: {{ hostvars[groups['servers'][0]]['node_token']['content'] | b64decode | regex_replace('\n', '') }}
+{% endif %}
+{% if clusterconfig.tlssan is defined or (clusterconfig.kubevip is defined and clusterconfig.kubevip.enabled is true and clusterconfig.kubevip.controlplane is true ) %}
+tls-san:
+{% if clusterconfig.kubevip is defined and clusterconfig.kubevip.enabled is true and clusterconfig.kubevip.controlplane is true %}
+    - {{ clusterconfig.kubevip.controlplaneVip }}
+{% endif %}
+{% if clusterconfig.tlssan is defined %}
+{% for item in clusterconfig.tlssan %}
+    - {{ item }}
+{% endfor %}
+{% endif %}
+{% endif %}

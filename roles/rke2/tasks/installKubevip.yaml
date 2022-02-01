@@ -1,0 +1,29 @@
+---
+- name: Add RBAC kubevip Manifests
+  copy:
+    src: files/kubevipRbac.yaml
+    dest: /var/lib/rancher/rke2/server/manifests/kubevip-rbac.yaml
+
+- name: Add KubeVip Manifests for controlplane 
+  template:
+    src: files/kubevipControlplane.j2
+    dest: /var/lib/rancher/rke2/server/manifests/kubevip-ds.yaml
+  when: clusterconfig.kubevip.controlplane is true  and clusterconfig.kubevip.services is not true
+
+- name: Add KubeVip Manifests for services 
+  template:
+    src: files/kubevipServices.j2
+    dest: /var/lib/rancher/rke2/server/manifests/kubevip-ds.yaml
+  when: clusterconfig.kubevip.services is true and clusterconfig.kubevip.controlplane is not true
+
+- name: Add KubeVip Manifests for controlplane and services
+  template:
+    src: files/kubevipControlplaneServices.j2
+    dest: /var/lib/rancher/rke2/server/manifests/kubevip-ds.yaml
+  when: clusterconfig.kubevip.services is true and clusterconfig.kubevip.controlplane is true
+
+- name: Install Cloud provider
+  copy:
+    src: files/kubevipCloudProvider.yaml
+    dest: /var/lib/rancher/rke2/server/manifests/kubevip-cloudProvider.yaml
+  when: clusterconfig.kubevip.services is true and clusterconfig.kubevip.cloudProvider is true
