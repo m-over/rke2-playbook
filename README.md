@@ -1,4 +1,5 @@
-# role to create RKE2 Cluster
+# Ansible Playbook to install RKE2 
+You can install a RKE2 cluster with kubevip with this Playbook
 
 # Example cluster config
 ``` 
@@ -19,8 +20,9 @@ kubevip:
 
 
 # TODOs
-- add calico
+- [] add calico
 ````
 cni:
   - calico
 ````
+- [] Install rke2 via binary
