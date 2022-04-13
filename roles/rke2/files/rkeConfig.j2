@@ -1,3 +1,4 @@
+# Managed by Ansible
 {% if hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] != hostvars[groups['servers'][0]]['ansible_eth0']['ipv4']['address'] %}
 server: https://{{ hostvars[groups['servers'][0]]['ansible_eth0']['ipv4']['address']}}:9345
 {% endif %}
@@ -8,6 +9,7 @@ token: {{ hostvars[groups['servers'][0]]['node_token']['content'] | b64decode | 
 {% endif %}
 {% if clusterconfig.tlssan is defined or (clusterconfig.kubevip is defined and clusterconfig.kubevip.enabled is true and clusterconfig.kubevip.controlplane is true ) %}
 tls-san:
+{% endif %}
 {% if clusterconfig.kubevip is defined and clusterconfig.kubevip.enabled is true and clusterconfig.kubevip.controlplane is true %}
     - {{ clusterconfig.kubevip.controlplaneVip }}
 {% endif %}
@@ -16,4 +18,9 @@ tls-san:
     - {{ item }}
 {% endfor %}
 {% endif %}
+{% if clusterconfig.cni is defined %}
+cni: {{ clusterconfig.cni }}
+{% endif %}
+{% if clusterconfig.kubeApiserverArg is defined %}
+kube-apiserver-arg: {{ clusterconfig.kubeApiserverArg }}
 {% endif %}

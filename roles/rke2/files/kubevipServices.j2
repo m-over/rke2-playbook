@@ -23,20 +23,12 @@ spec:
           value: "true"
         - name: port
           value: "6443"
-        - name: vip_interface
+        - name: vip_servicesinterface
           value: {{ clusterconfig.kubevip.interface }}
         - name: vip_cidr
           value: "32"
         - name: svc_enable
           value: "true"
-        - name: vip_leaderelection
-          value: "true"
-        - name: vip_leaseduration
-          value: "5"
-        - name: vip_renewdeadline
-          value: "3"
-        - name: vip_retryperiod
-          value: "1"
         - name: vip_address
         image: ghcr.io/kube-vip/kube-vip:v0.4.1
         imagePullPolicy: Always

@@ -1,9 +1,11 @@
 ---
 kubernetesVersion: v1.22.5+rke2r2
+# none, calico, canal, cilium
+cni: canal
 kubevip:
-  enabled: false
+  enabled: true
   controlplane: true
-  controlplaneVip: 192.168.178.5
+  controlplaneVip: 192.168.178.1
   interface: eth0
-  services: false
+  services: true
   kubevipCloudProvider: true
