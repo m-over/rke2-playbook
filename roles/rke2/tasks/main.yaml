@@ -7,7 +7,7 @@
 
 - name: Install kubevip
   include: installKubevip.yaml
-  when: clusterconfig.kubevip.enabled is true and hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] == hostvars[groups['servers'][0]]['ansible_eth0']['ipv4']['address']
+  when: clusterconfig.kubevip.enabled is true and hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] == hostvars[groups['servers'][0]]['ansible_default_ipv4']['address']
 
 - name: Install server nodes
   include: installServer.yaml
